@@ -1,7 +1,7 @@
 if SERVER then
 	AddCSLuaFile()
 
-	resource.AddFile("")
+	resource.AddFile("materials/gui/ttt/icon_defibrillator.vmt")
 end
 
 local DEFI_IDLE = 0
