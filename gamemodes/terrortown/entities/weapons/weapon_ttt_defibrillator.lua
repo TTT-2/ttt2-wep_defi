@@ -178,8 +178,8 @@ if SERVER then
 		self:Reset()
 		self:PlaySound("revived")
 
-		--self:Remove()
-		--RunConsoleCommand("lastinv")
+		self:Remove()
+		RunConsoleCommand("lastinv")
 	end
 
 	function SWEP:CancelRevival()
@@ -235,7 +235,7 @@ if SERVER then
 
 		local spawnPoint = spawn.MakeSpawnPointSafe(ent:GetPos())
 
-		if distance > GetConVar("ttt_defibrillator_dist"):GetInt()
+		if distance > GetConVar("ttt_defibrillator_distance"):GetInt()
 			or not IsValid(ent) or ent:GetClass() ~= "prop_ragdoll"
 			or not CORPSE.IsValidBody(ent)
 		then
@@ -250,7 +250,7 @@ if SERVER then
 			return
 		end
 
-		if CORPSE.WasHeadshot(ent) and not GetConVar("ttt_defibrillator_ignore_braindead"):GetBool() then
+		if CORPSE.WasHeadshot(ent) and not GetConVar("ttt_defibrillator_revive_braindead"):GetBool() then
 			self:Error(DEFI_ERROR_BRAINDEAD)
 		elseif not spawnPoint then
 			self:Error(DEFI_ERROR_NO_SPACE)
@@ -304,7 +304,7 @@ if CLIENT then
 
 		local ply = CORPSE.GetPlayer(ent)
 
-		if IsValid(ply) and ply:IsReviving() then
+		if IsValid(ply) and ply:IsReviving() and activeWeapon:GetState() ~= DEFI_BUSY then
 			tData:AddDescriptionLine(
 				LANG.TryTranslation("defi_player_already_reviving"),
 				COLOR_ORANGE
@@ -323,6 +323,7 @@ if CLIENT then
 		if activeWeapon:GetState() ~= DEFI_BUSY then return end
 
 		local progress = (CurTime() - activeWeapon:GetStartTime()) / activeWeapon:GetReviveTime()
+		local timeLeft = activeWeapon:GetReviveTime() - (CurTime() - activeWeapon:GetStartTime())
 
 		local x = 0.5 * ScrW()
 		local y = 0.5 * ScrH()
@@ -338,7 +339,7 @@ if CLIENT then
 		surface.DrawRect(x - 0.5 * w + 2, y - h + 2, w * progress - 4, h - 4)
 
 		tData:AddDescriptionLine(
-			LANG.GetParamTranslation("defi_revive_progress", {progress = math.Round(progress * 100, 1)}),
+			LANG.GetParamTranslation("defi_revive_progress", {time = math.Round(timeLeft, 1)}),
 			colorGreen
 		)
 
