@@ -6,13 +6,15 @@ end
 
 local DEFI_IDLE = 0
 local DEFI_BUSY = 1
-local DEFI_ERROR = 2
+local DEFI_CHARGE = 2
 
 local DEFI_ERROR_BRAINDEAD = 0
 local DEFI_ERROR_NO_SPACE = 1
 local DEFI_ERROR_TOO_FAST = 2
 local DEFI_ERROR_LOST_TARGET = 3
 local DEFI_ERROR_NO_VALID_PLY = 4
+local DEFI_ERROR_ALREADY_REVIVING = 5
+local DEFI_ERROR_FAILED = 6
 
 local sounds = {
 	empty = Sound("Weapon_SMG1.Empty"),
@@ -69,15 +71,7 @@ SWEP.Timer = -1
 
 if SERVER then
 	function SWEP:SetState(state)
-		self.defiState = state or DEFI_IDLE
-	end
-
-	function SWEP:IsState(state)
-		return not self.defiState or self.defiState == state or false
-	end
-
-	function SWEP:GetState()
-		return self.defiState or DEFI_IDLE
+		self:SetNWInt("defi_state", state or DEFI_IDLE)
 	end
 
 	function SWEP:Reset()
@@ -91,7 +85,7 @@ if SERVER then
 	end
 
 	function SWEP:Error(type)
-		self:SetState(DEFI_ERROR)
+		self:SetState(DEFI_CHARGE)
 		self:StopSound("hum")
 		self:PlaySound("beep")
 
@@ -105,6 +99,28 @@ if SERVER then
 
 			self:Reset()
 		end)
+
+		self:Message(type)
+	end
+
+	function SWEP:Message(type)
+		local owner = self:GetOwner()
+
+		if type == DEFI_ERROR_BRAINDEAD then
+			LANG.Msg(owner, "defi_error_braindead", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_NO_SPACE then
+			LANG.Msg(owner, "defi_error_no_space", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_TOO_FAST then
+			LANG.Msg(owner, "defi_error_too_fast", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_LOST_TARGET then
+			LANG.Msg(owner, "defi_error_lost_target", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_NO_VALID_PLY then
+			LANG.Msg(owner, "defi_error_no_valid_ply", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_ALREADY_REVIVING then
+			LANG.Msg(owner, "defi_error_already_reviving", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_FAILED then
+			LANG.Msg(owner, "defi_error_failed", nil, MSG_MSTACK_WARN)
+		end
 	end
 
 	function SWEP:BeginRevival(ragdoll, bone)
@@ -116,13 +132,22 @@ if SERVER then
 			return
 		end
 
+		if ply:IsReviving() then
+			self:Error(DEFI_ERROR_ALREADY_REVIVING)
+
+			return
+		end
+
+		local reviveTime = GetConVar("ttt_defibrillator_revive_time"):GetFloat()
+
 		self:SetState(DEFI_BUSY)
 		self:SetStartTime(CurTime())
+		self:SetReviveTime(reviveTime)
 		self:PlaySound("hum")
 
 		-- start revival
 		ply:Revive(
-			GetConVar("ttt_defibrillator_revive_time"):GetFloat(),
+			reviveTime,
 			nil,
 			nil,
 			true,
@@ -137,8 +162,15 @@ if SERVER then
 	function SWEP:FinishRevival()
 		self:PlaySound("zap")
 
-		if math.random(0, 1000) > GetConVar("ttt_defibrillator_success_chance"):GetInt() then
+		if math.random(0, 100) > GetConVar("ttt_defibrillator_success_chance"):GetInt() then
+			local phys = self.defiTarget:GetPhysicsObjectNum(self.defiBone)
+
+			if IsValid(phys) then
+				phys:ApplyForceCenter(Vector(0, 0, 4096))
+			end
+
 			self:CancelRevival()
+			self:Error(DEFI_ERROR_FAILED)
 
 			return
 		end
@@ -154,11 +186,8 @@ if SERVER then
 		local ply = CORPSE.GetPlayer(self.defiTarget)
 
 		self:Reset()
-		print("cancel revival 1")
 
 		if not IsValid(ply) then return end
-
-		print("cancel revival")
 
 		ply:CancelRevival()
 		ply:SetRevivalReason(nil)
@@ -176,12 +205,12 @@ if SERVER then
 		self:GetOwner():EmitSound(sounds[soundName])
 	end
 
-	function SWEP:GetStartTime()
-		return self.defiStartTime or 0
+	function SWEP:SetStartTime(time)
+		self:SetNWFloat("defi_start_time", time or 0)
 	end
 
-	function SWEP:SetStartTime(time)
-		self.defiStartTime = time
+	function SWEP:SetReviveTime(time)
+		self:SetNWFloat("defi_revive_time", time or 0)
 	end
 
 	function SWEP:Think()
@@ -215,7 +244,7 @@ if SERVER then
 			return
 		end
 
-		if not self:IsState(DEFI_IDLE) then
+		if self:GetState() ~= DEFI_IDLE then
 			self:Error(DEFI_ERROR_TOO_FAST)
 
 			return
@@ -234,4 +263,72 @@ end
 -- do not play sound when swep is empty
 function SWEP:DryFire()
 	return false
+end
+
+function SWEP:GetState()
+	return self:GetNWInt("defi_state", DEFI_IDLE)
+end
+
+function SWEP:GetStartTime()
+	return self:GetNWFloat("defi_start_time", 0)
+end
+
+function SWEP:GetReviveTime()
+	return self:GetNWFloat("defi_revive_time", 0)
+end
+
+if CLIENT then
+	local colorGreen = Color(36, 160, 30)
+
+	hook.Add("TTTRenderEntityInfo", "ttt2_defi_display_info", function(tData)
+		local ent = tData:GetEntity()
+		local client = LocalPlayer()
+		local activeWeapon = client:GetActiveWeapon()
+
+		-- has to be a ragdoll
+		if ent:GetClass() ~= "prop_ragdoll" or not CORPSE.IsValidBody(ent) then return end
+
+		-- player has to hold a defibrillator
+		if activeWeapon:GetClass() ~= "weapon_ttt_defibrillator" then return end
+
+		if activeWeapon:GetState() == DEFI_CHARGE then
+			tData:AddDescriptionLine(
+				LANG.TryTranslation("defi_charging"),
+				COLOR_ORANGE
+			)
+
+			tData:SetOutlineColor(COLOR_ORANGE)
+
+			return
+		end
+
+		tData:AddDescriptionLine(
+			LANG.GetParamTranslation("defi_hold_key_to_revive", {key = Key("+attack", "LEFT MOUSE")}),
+			colorGreen
+		)
+
+		if activeWeapon:GetState() ~= DEFI_BUSY then return end
+
+		local progress = (CurTime() - activeWeapon:GetStartTime()) / activeWeapon:GetReviveTime()
+
+		local x = 0.5 * ScrW()
+		local y = 0.5 * ScrH()
+		local w, h = 0.2 * ScrW(), 0.025 * ScrH()
+
+		y = 0.95 * y
+
+		surface.SetDrawColor(50, 50, 50, 220)
+		surface.DrawRect(x - 0.5 * w, y - h, w, h)
+		surface.SetDrawColor(clr(colorGreen))
+		surface.DrawOutlinedRect(x - 0.5 * w, y - h, w, h)
+		surface.SetDrawColor(clr(ColorAlpha(colorGreen, (0.5 + 0.15 * math.sin(CurTime() * 4)) * 255)))
+		surface.DrawRect(x - 0.5 * w + 2, y - h + 2, w * progress - 4, h - 4)
+
+		tData:AddDescriptionLine(
+			LANG.GetParamTranslation("defi_revive_progress", {progress = math.Round(progress * 100, 1)}),
+			colorGreen
+		)
+
+		tData:SetOutlineColor(colorGreen)
+	end)
 end
