@@ -302,6 +302,19 @@ if CLIENT then
 			return
 		end
 
+		local ply = CORPSE.GetPlayer(ent)
+
+		if IsValid(ply) and ply:IsReviving() then
+			tData:AddDescriptionLine(
+				LANG.TryTranslation("defi_player_already_reviving"),
+				COLOR_ORANGE
+			)
+
+			tData:SetOutlineColor(COLOR_ORANGE)
+
+			return
+		end
+
 		tData:AddDescriptionLine(
 			LANG.GetParamTranslation("defi_hold_key_to_revive", {key = Key("+attack", "LEFT MOUSE")}),
 			colorGreen
