@@ -51,6 +51,17 @@ if SERVER then
 			true, false, name
 		)
 	end)
+
+	-- ConVar replication is broken in GMod, so we do this, at least Alf added a hook!
+	-- I don't like it any more than you do, dear reader. Copycat!
+	hook.Add("TTT2SyncGlobals", "ttt2_defibrillator_sync_convars", function()
+		SetGlobalFloat("ttt_defibrillator_distance", GetConVar("ttt_defibrillator_distance"):GetFloat())
+	end)
+
+	-- sync convars on change
+	cvars.AddChangeCallback("ttt_defibrillator_distance", function(cv, old, new)
+		SetGlobalFloat("ttt_defibrillator_distance", tonumber(new))
+	end)
 end
 
 if CLIENT then

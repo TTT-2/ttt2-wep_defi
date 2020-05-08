@@ -70,6 +70,9 @@ SWEP.Charge = 0
 SWEP.Timer = -1
 
 if SERVER then
+	util.AddNetworkString("RequestRevivalStatus")
+	util.AddNetworkString("ReceiveRevivalStatus")
+
 	function SWEP:SetState(state)
 		self:SetNWInt("defi_state", state or DEFI_IDLE)
 	end
@@ -153,7 +156,7 @@ if SERVER then
 			true,
 			false
 		)
-		ply:SetRevivalReason("revived_by_player", {name = self:GetOwner():Nick()})
+		ply:SendRevivalReason("revived_by_player", {name = self:GetOwner():Nick()})
 
 		self.defiTarget = ragdoll
 		self.defiBone = bone
@@ -190,7 +193,7 @@ if SERVER then
 		if not IsValid(ply) then return end
 
 		ply:CancelRevival()
-		ply:SetRevivalReason(nil)
+		ply:SendRevivalReason(nil)
 	end
 
 	function SWEP:StopSound(soundName)
@@ -230,10 +233,10 @@ if SERVER then
 		local owner = self:GetOwner()
 
 		local trace = owner:GetEyeTrace(MASK_SHOT_HULL)
-		local distance = trace.HitPos:Distance(owner:GetPos())
+		local distance = trace.StartPos:Distance(trace.HitPos)
 		local ent = trace.Entity
 
-		local spawnPoint = spawn.MakeSpawnPointSafe(ent:GetPos())
+		local spawnPoint = spawn.MakeSpawnPointSafe(CORPSE.GetPlayer(ent), ent:GetPos())
 
 		if distance > GetConVar("ttt_defibrillator_distance"):GetInt()
 			or not IsValid(ent) or ent:GetClass() ~= "prop_ragdoll"
@@ -258,6 +261,17 @@ if SERVER then
 			self:BeginRevival(ent, trace.PhysicsBone)
 		end
 	end
+
+	net.Receive("RequestRevivalStatus", function(_, requester)
+		local ply = net.ReadEntity()
+
+		if not IsValid(ply) then return end
+
+		net.Start("ReceiveRevivalStatus")
+		net.WriteEntity(ply)
+		net.WriteBool(ply:IsReviving())
+		net.Send(requester)
+	end)
 end
 
 -- do not play sound when swep is empty
@@ -280,6 +294,26 @@ end
 if CLIENT then
 	local colorGreen = Color(36, 160, 30)
 
+	local function IsPlayerReviving(ply)
+		if not ply.defi_lastRequest or ply.defi_lastRequest < CurTime() + 0.3 then
+			net.Start("RequestRevivalStatus")
+			net.WriteEntity(ply)
+			net.SendToServer()
+
+			ply.defi_lastRequest = CurTime()
+		end
+
+		return ply.defi_isRevining or false
+	end
+
+	net.Receive("ReceiveRevivalStatus", function()
+		local ply = net.ReadEntity()
+
+		if not IsValid(ply) then return end
+
+		ply.defi_isRevining = net.ReadBool()
+	end)
+
 	hook.Add("TTTRenderEntityInfo", "ttt2_defi_display_info", function(tData)
 		local ent = tData:GetEntity()
 		local client = LocalPlayer()
@@ -289,7 +323,10 @@ if CLIENT then
 		if ent:GetClass() ~= "prop_ragdoll" or not CORPSE.IsValidBody(ent) then return end
 
 		-- player has to hold a defibrillator
-		if activeWeapon:GetClass() ~= "weapon_ttt_defibrillator" then return end
+		if not IsValid(activeWeapon) or activeWeapon:GetClass() ~= "weapon_ttt_defibrillator" then return end
+
+		-- ent has to be in usable range
+		if tData:GetEntityDistance() > GetGlobalFloat("ttt_defibrillator_distance", 100.0) then return end
 
 		if activeWeapon:GetState() == DEFI_CHARGE then
 			tData:AddDescriptionLine(
@@ -304,7 +341,7 @@ if CLIENT then
 
 		local ply = CORPSE.GetPlayer(ent)
 
-		if IsValid(ply) and ply:IsReviving() and activeWeapon:GetState() ~= DEFI_BUSY then
+		if activeWeapon:GetState() ~= DEFI_BUSY and IsValid(ply) and IsPlayerReviving(ply) then
 			tData:AddDescriptionLine(
 				LANG.TryTranslation("defi_player_already_reviving"),
 				COLOR_ORANGE
