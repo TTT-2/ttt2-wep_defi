@@ -314,7 +314,7 @@ if CLIENT then
 		ply.defi_isRevining = net.ReadBool()
 	end)
 
-	hook.Add("TTTRenderEntityInfo", "ttt2_defi_display_info", function(tData)
+	hook.Add("TTTRenderEntityInfo", "ttt2_defibrillator_display_info", function(tData)
 		local ent = tData:GetEntity()
 		local client = LocalPlayer()
 		local activeWeapon = client:GetActiveWeapon()
