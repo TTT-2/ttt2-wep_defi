@@ -19,7 +19,7 @@ local DEFI_ERROR_FAILED = 6
 local sounds = {
 	empty = Sound("Weapon_SMG1.Empty"),
 	beep = Sound("buttons/button17.wav"),
-	hum = "items/nvg_on.wav",
+	hum = Sound("items/nvg_on.wav"),
 	zap = Sound("ambient/energy/zap7.wav"),
 	revived = Sound("items/smallmedkit1.wav")
 }
@@ -236,8 +236,6 @@ if SERVER then
 		local distance = trace.StartPos:Distance(trace.HitPos)
 		local ent = trace.Entity
 
-		local spawnPoint = spawn.MakeSpawnPointSafe(CORPSE.GetPlayer(ent), ent:GetPos())
-
 		if distance > GetConVar("ttt_defibrillator_distance"):GetInt()
 			or not IsValid(ent) or ent:GetClass() ~= "prop_ragdoll"
 			or not CORPSE.IsValidBody(ent)
@@ -246,6 +244,8 @@ if SERVER then
 
 			return
 		end
+
+		local spawnPoint = spawn.MakeSpawnPointSafe(CORPSE.GetPlayer(ent), ent:GetPos())
 
 		if self:GetState() ~= DEFI_IDLE then
 			self:Error(DEFI_ERROR_TOO_FAST)
