@@ -1,0 +1,11 @@
+{
+	"title"		:	"[TTT2] Defibrillator [WEAPON]",
+	"type"		:	"effects",
+    "tags"		:	[ "realism", "fun" ],
+    "ignore"    : [
+        ".git/*",
+        ".gitignore",
+        "README.md",
+		"ttt2-wep_defi.jpg"
+    ]
+}
