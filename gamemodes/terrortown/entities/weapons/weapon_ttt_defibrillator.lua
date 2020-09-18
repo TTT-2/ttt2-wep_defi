@@ -151,7 +151,11 @@ if SERVER then
 		-- start revival
 		ply:Revive(
 			reviveTime,
-			nil,
+			function()
+				if GetConVar("ttt_defibrillator_reset_confirm"):GetBool() then
+					ply:ResetConfirmPlayer()
+				end
+			end,
 			nil,
 			true,
 			false

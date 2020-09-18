@@ -7,6 +7,7 @@ if SERVER then
 	CreateConVar("ttt_defibrillator_revive_time", "3.0", {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 	CreateConVar("ttt_defibrillator_error_time", "1.5", {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 	CreateConVar("ttt_defibrillator_success_chance", "75", {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+	CreateConVar("ttt_defibrillator_reset_confirm", "0", {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 
 	hook.Add("TTTUlxInitCustomCVar", "ttt2_defibrillator_replicate_convars", function(name)
 		ULib.replicatedWritableCvar(
@@ -48,6 +49,13 @@ if SERVER then
 			"ttt_defibrillator_success_chance",
 			"rep_ttt_defibrillator_success_chance",
 			GetConVar("ttt_defibrillator_success_chance"):GetInt(),
+			true, false, name
+		)
+
+		ULib.replicatedWritableCvar(
+			"ttt_defibrillator_reset_confirm",
+			"rep_ttt_defibrillator_reset_confirm",
+			GetConVar("ttt_defibrillator_reset_confirm"):GetInt(),
 			true, false, name
 		)
 	end)
@@ -124,6 +132,12 @@ if CLIENT then
 		tttrslst:AddItem(xlib.makecheckbox{
 			label = "ttt_defibrillator_play_sounds (def. 1)",
 			repconvar = "rep_ttt_defibrillator_play_sounds",
+			parent = tttrslst
+		})
+
+		tttrslst:AddItem(xlib.makecheckbox{
+			label = "ttt_defibrillator_reset_confirm (def. 0)",
+			repconvar = "rep_ttt_defibrillator_reset_confirm",
 			parent = tttrslst
 		})
 
