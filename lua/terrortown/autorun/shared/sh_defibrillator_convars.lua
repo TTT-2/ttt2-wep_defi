@@ -1,5 +1,3 @@
-if engine.ActiveGamemode() ~= "terrortown" then return end
-
 if SERVER then
 	CreateConVar("ttt_defibrillator_distance", "100", {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 	CreateConVar("ttt_defibrillator_revive_braindead", "0", {FCVAR_NOTIFY, FCVAR_ARCHIVE})
