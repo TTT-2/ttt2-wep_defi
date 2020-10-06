@@ -1,4 +1,4 @@
-L = LANG.GetLanguageTableReference("english")
+local L = LANG.GetLanguageTableReference("english")
 
 L["weapon_defi_name"] = "Defibrillator"
 L["weapon_defi_desc"] = "A high energy device to revive other players."
