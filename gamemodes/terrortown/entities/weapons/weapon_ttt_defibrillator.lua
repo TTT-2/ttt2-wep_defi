@@ -73,6 +73,12 @@ if SERVER then
 	util.AddNetworkString("RequestRevivalStatus")
 	util.AddNetworkString("ReceiveRevivalStatus")
 
+	function SWEP:OnDrop()
+		self.BaseClass.OnDrop(self)
+
+		self:CancelRevival()
+	end
+
 	function SWEP:SetState(state)
 		self:SetNWInt("defi_state", state or DEFI_IDLE)
 	end
@@ -307,7 +313,7 @@ if CLIENT then
 			ply.defi_lastRequest = CurTime()
 		end
 
-		return ply.defi_isRevining or false
+		return ply.defi_isReviving or false
 	end
 
 	net.Receive("ReceiveRevivalStatus", function()
@@ -315,7 +321,7 @@ if CLIENT then
 
 		if not IsValid(ply) then return end
 
-		ply.defi_isRevining = net.ReadBool()
+		ply.defi_isReviving = net.ReadBool()
 	end)
 
 	hook.Add("TTTRenderEntityInfo", "ttt2_defibrillator_display_info", function(tData)
