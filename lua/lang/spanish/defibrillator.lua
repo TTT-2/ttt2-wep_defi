@@ -1,0 +1,16 @@
+local L = LANG.GetLanguageTableReference("spanish")
+
+L["weapon_defi_name"] = "Desfribilador"
+L["weapon_defi_desc"] = "Un dispositivo con gran energía para revivir a otros jugadores."
+L["revived_by_player"] = "Estás siendo revivido por {name}. Prepárate."
+L["defi_hold_key_to_revive"] = "Mantén [{key}] para revivir a un jugador."
+L["defi_revive_progress"] = "Tiempo restante: {time}s"
+L["defi_charging"] = "El Desfribilador está recargándose, por favor espere"
+L["defi_player_already_reviving"] = "El jugador ya está siendo revivido"
+L["defi_error_braindead"] = "No puedes revivir a un jugador con muerte cerebral."
+L["defi_error_no_space"] = "No hay espacio suficiente en la habitación para que sea revivido."
+L["defi_error_too_fast"] = "El Desfribilador está recargándose, por favor espere."
+L["defi_error_lost_target"] = "Has perdido tu objetivo de la mira. Intenta de vuelta."
+L["defi_error_no_valid_ply"] = "No puedes revivir a un jugador después de tanto tiempo."
+L["defi_error_already_reviving"] = "No puedes revivir a alguien que está siendo revivido actualmente."
+L["defi_error_failed"] = "Intento de revivir fallido. Intente nuevamente."
