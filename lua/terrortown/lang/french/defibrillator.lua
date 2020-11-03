@@ -11,6 +11,6 @@ L["defi_error_braindead"] = "Vous ne pouvez pas réanimer un joueur ayant subit 
 L["defi_error_no_space"] = "Il n'y a pas assez de place pour ressucité le joueur."
 L["defi_error_too_fast"] = "Le défibrillateur est en train de se recharger. Veuillez patienter."
 L["defi_error_lost_target"] = "Vous avez perdu votre cible. Veuillez réessayer."
-L["defi_error_no_valid_ply"] = Vous ne pouvez pas réanimer ce joueur car son corps n'existe pas ou n'est plu valide."
+L["defi_error_no_valid_ply"] = "Vous ne pouvez pas réanimer ce joueur car son corps n'existe pas ou n'est plu valide."
 L["defi_error_already_reviving"] = "Vous ne pouvez pas réanimer ce joueur parce qu'il est déjà réanimé."
 L["defi_error_failed"] = "La tentative de réanimation a échoué. Veuillez réessayer."
