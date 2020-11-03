@@ -1,0 +1,16 @@
+local L = LANG.GetLanguageTableReference("french")
+
+L["weapon_defi_name"] = "Défibrillateur"
+L["weapon_defi_desc"] = "Un dispositif à haute tension pour réanimer les autres joueurs."
+L["revived_by_player"] = "Vous êtes réanimé par {name}. Préparez-vous!"
+L["defi_hold_key_to_revive"] = "Maintenez [{key}] pour réanimer le joueur"
+L["defi_revive_progress"] = "Temps restant: {time}s"
+L["defi_charging"] = "Le défibrillateur est en train de se recharger, veuillez patienter"
+L["defi_player_already_reviving"] = "Ce joueur est déjà ressuscité"
+L["defi_error_braindead"] = "Vous ne pouvez pas réanimer un joueur ayant subit un tir a la tête."
+L["defi_error_no_space"] = "Il n'y a pas assez de place pour ressucité le joueur."
+L["defi_error_too_fast"] = "Le défibrillateur est en train de se recharger. Veuillez patienter."
+L["defi_error_lost_target"] = "Vous avez perdu votre cible. Veuillez réessayer."
+L["defi_error_no_valid_ply"] = "Vous ne pouvez pas réanimer ce joueur car son corps n'existe pas ou n'est plu valide."
+L["defi_error_already_reviving"] = "Vous ne pouvez pas réanimer ce joueur parce qu'il est déjà réanimé."
+L["defi_error_failed"] = "La tentative de réanimation a échoué. Veuillez réessayer."
