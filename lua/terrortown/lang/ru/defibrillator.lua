@@ -1,4 +1,4 @@
-L = LANG.GetLanguageTableReference("Русский")
+L = LANG.GetLanguageTableReference("ru")
 
 L["weapon_defi_name"] = "Дефибриллятор"
 L["weapon_defi_desc"] = "Высокоэнергетическое устройство для оживления других игроков."
