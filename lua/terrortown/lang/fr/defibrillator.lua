@@ -14,3 +14,4 @@ L["defi_error_lost_target"] = "Vous avez perdu votre cible. Veuillez réessayer.
 L["defi_error_no_valid_ply"] = "Vous ne pouvez pas réanimer ce joueur car son corps n'existe pas ou n'est plu valide."
 L["defi_error_already_reviving"] = "Vous ne pouvez pas réanimer ce joueur parce qu'il est déjà réanimé."
 L["defi_error_failed"] = "La tentative de réanimation a échoué. Veuillez réessayer."
+-- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."

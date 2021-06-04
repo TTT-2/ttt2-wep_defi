@@ -14,3 +14,4 @@ L["defi_error_lost_target"] = "Has perdido tu objetivo de la mira. Intenta de vu
 L["defi_error_no_valid_ply"] = "No puedes revivir a un jugador después de tanto tiempo."
 L["defi_error_already_reviving"] = "No puedes revivir a alguien que está siendo revivido actualmente."
 L["defi_error_failed"] = "Intento de revivir fallido. Intente nuevamente."
+-- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
