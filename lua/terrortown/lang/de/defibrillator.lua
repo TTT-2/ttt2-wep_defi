@@ -14,3 +14,4 @@ L["defi_error_lost_target"] = "Du hast dein Ziel verloren. Bitte versuche es ern
 L["defi_error_no_valid_ply"] = "Du kannst diesen Spieler nicht wiederbeleben, da er nicht länger valide ist."
 L["defi_error_already_reviving"] = "Du kannst diesen Spieler nicht wiederbeleben, da er bereits wiederbelebt wird."
 L["defi_error_failed"] = "Wiederbeleben fehlgeschlagen. Bitte versuche es erneut."
+-- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
