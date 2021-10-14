@@ -12,6 +12,10 @@ function CLGAMEMODESUBMENU:Populate(parent)
 		serverConvar = "ttt_defibrillator_play_sounds"
 	})
 
+	form:MakeHelp({
+		label = "help_defibrillator_revive_braindead"
+	})
+
 	form:MakeCheckBox({
 		label = "label_defibrillator_revive_braindead",
 		serverConvar = "ttt_defibrillator_revive_braindead"
@@ -31,6 +35,10 @@ function CLGAMEMODESUBMENU:Populate(parent)
 		min = 0,
 		max = 100,
 		decimal = 0
+	})
+
+	form:MakeHelp({
+		label = "help_defibrillator_time"
 	})
 
 	form:MakeSlider({

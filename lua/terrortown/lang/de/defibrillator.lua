@@ -14,4 +14,20 @@ L["defi_error_lost_target"] = "Du hast dein Ziel verloren. Bitte versuche es ern
 L["defi_error_no_valid_ply"] = "Du kannst diesen Spieler nicht wiederbeleben, da er nicht länger valide ist."
 L["defi_error_already_reviving"] = "Du kannst diesen Spieler nicht wiederbeleben, da er bereits wiederbelebt wird."
 L["defi_error_failed"] = "Wiederbeleben fehlgeschlagen. Bitte versuche es erneut."
--- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
+L["defi_error_player_alive"] = "Du kannst diesen Spieler nicht wiederbeleben, da dieser noch am Leben ist."
+
+L["submenu_server_addons_defibrillator_title"] = "Defibrillator"
+L["header_server_addons_defibrillator"] = "Allgemeine Einstellungen"
+
+L["label_defibrillator_play_sounds"] = "Aktiviere Geräusche bei Wiederbelebung"
+L["label_defibrillator_revive_braindead"] = "Aktiviere das Wiederbeleben von hirntoten Spielern"
+L["label_defibrillator_distance"] = "Maximale Entfernung für Wiederbelebung"
+L["label_defibrillator_success_chance"] "Chance für erfolgreiche Wiederbelebung"
+L["label_defibrillator_revive_time"] "Dauer der Widerbelebung"
+L["label_defibrillator_error_time"] = "Pause nach Fehlschlag"
+
+L["help_defibrillator_revive_braindead"] = "Ein hirntoter Spieler ist ein Spieler, der durch einen Kopfschuss getötet wurde. Wenn diese Einstellung deaktiviert ist, dann kann ein solcher Spieler nicht mit dem Defibrillator widerbelebt werden."
+L["help_defibrillator_time"] = [[
+Es gibt zwei Variablen für die Zeiteinstellungen des Defibrillators. Die erste stellt ein, wie lange es dauert eine Wiederbelebung durchzuführen. Die zweite steht für die Pausenzeit nach einem fehlgeschlagenen Versuch, bevor es erneut probiert werden kann.
+
+Beide Werte sind in Sekunden.]]

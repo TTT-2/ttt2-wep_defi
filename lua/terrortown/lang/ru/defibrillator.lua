@@ -15,3 +15,19 @@ L["defi_error_no_valid_ply"] = "Вы не можете оживить этого
 L["defi_error_already_reviving"] = "Вы не можете оживить этого игрока, так как он уже оживает."
 L["defi_error_failed"] = "Попытка возрождения не удалась. Пожалуйста, попробуйте ещё раз."
 -- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
+
+--L["submenu_server_addons_defibrillator_title"] = "Defibrillator"
+--L["header_server_addons_defibrillator"] = "General Settings"
+
+--L["label_defibrillator_play_sounds"] = "Enable defibrillator making sounds while reviving"
+--L["label_defibrillator_revive_braindead"] = "Enable reviving of braindead players"
+--L["label_defibrillator_distance"] = "Maximum distance for revival"
+--L["label_defibrillator_success_chance"] "Chance the revival is a success"
+--L["label_defibrillator_revive_time"] "Time it takes for revival"
+--L["label_defibrillator_error_time"] = "Timeout after failed revival"
+
+--L["help_defibrillator_revive_braindead"] = "A baindead player is a player that got killed by a headshot. If this setting is disabled, they can not be revived with this defibrillator."
+--L["help_defibrillator_time"] = [[
+--There are two variables for timing the defibrillator. One sets the time it takes for the revival to happen. The other time is the timeout after a failed revival attempt until it can be tried again.
+
+--Both values are in seconds.]]
