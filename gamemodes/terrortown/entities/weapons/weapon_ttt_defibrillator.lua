@@ -182,7 +182,7 @@ if SERVER then
 				end
 			end,
 			true,
-			false
+			REVIVAL_BLOCK_NONE
 		)
 		ply:SendRevivalReason("revived_by_player", {name = self:GetOwner():Nick()})
 
