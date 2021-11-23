@@ -16,9 +16,6 @@ L["defi_error_already_reviving"] = "Du kannst diesen Spieler nicht wiederbeleben
 L["defi_error_failed"] = "Wiederbeleben fehlgeschlagen. Bitte versuche es erneut."
 L["defi_error_player_alive"] = "Du kannst diesen Spieler nicht wiederbeleben, da dieser noch am Leben ist."
 
-L["submenu_server_addons_defibrillator_title"] = "Defibrillator"
-L["header_server_addons_defibrillator"] = "Allgemeine Einstellungen"
-
 L["label_defibrillator_play_sounds"] = "Aktiviere Geräusche bei Wiederbelebung"
 L["label_defibrillator_revive_braindead"] = "Aktiviere das Wiederbeleben von hirntoten Spielern"
 L["label_defibrillator_distance"] = "Maximale Entfernung für Wiederbelebung"

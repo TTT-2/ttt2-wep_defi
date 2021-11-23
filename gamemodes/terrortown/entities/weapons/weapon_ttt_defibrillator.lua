@@ -324,6 +324,60 @@ function SWEP:GetReviveTime()
 end
 
 if CLIENT then
+	function SWEP:AddToSettingsMenu(parent)
+		local form = vgui.CreateTTT2Form(parent, "header_equipment_additional")
+
+		form:MakeCheckBox({
+			label = "label_defibrillator_play_sounds",
+			serverConvar = "ttt_defibrillator_play_sounds"
+		})
+
+		form:MakeHelp({
+			label = "help_defibrillator_revive_braindead"
+		})
+
+		form:MakeCheckBox({
+			label = "label_defibrillator_revive_braindead",
+			serverConvar = "ttt_defibrillator_revive_braindead"
+		})
+
+		form:MakeSlider({
+			label = "label_defibrillator_distance",
+			serverConvar = "ttt_defibrillator_distance",
+			min = 0,
+			max = 250,
+			decimal = 0
+		})
+
+		form:MakeSlider({
+			label = "label_defibrillator_success_chance",
+			serverConvar = "ttt_defibrillator_success_chance",
+			min = 0,
+			max = 100,
+			decimal = 0
+		})
+
+		form:MakeHelp({
+			label = "help_defibrillator_time"
+		})
+
+		form:MakeSlider({
+			label = "label_defibrillator_revive_time",
+			serverConvar = "ttt_defibrillator_revive_time",
+			min = 0,
+			max = 15,
+			decimal = 1
+		})
+
+		form:MakeSlider({
+			label = "label_defibrillator_error_time",
+			serverConvar = "ttt_defibrillator_error_time",
+			min = 0,
+			max = 15,
+			decimal = 1
+		})
+	end
+
 	local colorGreen = Color(36, 160, 30)
 
 	local function IsPlayerReviving(ply)

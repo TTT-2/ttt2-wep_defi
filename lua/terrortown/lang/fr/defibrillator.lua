@@ -16,9 +16,6 @@ L["defi_error_already_reviving"] = "Vous ne pouvez pas réanimer ce joueur parce
 L["defi_error_failed"] = "La tentative de réanimation a échoué. Veuillez réessayer."
 -- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
 
---L["submenu_server_addons_defibrillator_title"] = "Defibrillator"
---L["header_server_addons_defibrillator"] = "General Settings"
-
 --L["label_defibrillator_play_sounds"] = "Enable defibrillator making sounds while reviving"
 --L["label_defibrillator_revive_braindead"] = "Enable reviving of braindead players"
 --L["label_defibrillator_distance"] = "Maximum distance for revival"
