@@ -16,6 +16,7 @@ local DEFI_ERROR_NO_VALID_PLY = 4
 local DEFI_ERROR_ALREADY_REVIVING = 5
 local DEFI_ERROR_FAILED = 6
 local DEFI_ERROR_PLAYER_ALIVE = 7
+local DEFI_ERROR_PLAYER_DISCONNECTED = 8
 
 
 local sounds = {
@@ -133,6 +134,10 @@ if SERVER then
 			LANG.Msg(owner, "defi_error_failed", nil, MSG_MSTACK_WARN)
 		elseif type == DEFI_ERROR_PLAYER_ALIVE then
 			LANG.Msg(owner, "defi_error_player_alive", nil, MSG_MSTACK_WARN)
+		elseif type == DEFI_ERROR_PLAYER_DISCONNECTED then
+			LANG.Msg(owner, "defi_error_player_disconnected", nil, MSG_MSTACK_WARN)
+		elseif isstring(type) then
+			LANG.Msg(owner, type, nil, MSG_MSTACK_WARN)
 		end
 	end
 
@@ -277,7 +282,24 @@ if SERVER then
 			return
 		end
 
-		local spawnPoint = plyspawn.MakeSpawnPointSafe(CORPSE.GetPlayer(ent), ent:GetPos())
+		local defibAttemptResult = hook.Run("TTT2AttemptDefibPlayer", owner, ent, self)
+		if defibAttemptResult ~= nil then
+			self:Error()
+			return
+		end
+
+		local corpsePlayer = CORPSE.GetPlayer(ent)
+		if not IsValid(corpsePlayer) then
+			-- In case people want to do something about this for themselves.
+			local defibDisconnectResult = hook.Run("TTT2AttemptDefibDisconnectedPlayer", owner, ent, self)
+			if defibDisconnectResult ~= nil then
+				self:Error()
+				return
+			end
+
+			self:Error(DEFI_ERROR_PLAYER_DISCONNECTED)
+			return
+		end
 
 		if self:GetState() ~= DEFI_IDLE then
 			self:Error(DEFI_ERROR_TOO_FAST)
@@ -285,6 +307,7 @@ if SERVER then
 			return
 		end
 
+		local spawnPoint = plyspawn.MakeSpawnPointSafe(corpsePlayer, ent:GetPos())
 		if CORPSE.WasHeadshot(ent) and not GetConVar("ttt_defibrillator_revive_braindead"):GetBool() then
 			self:Error(DEFI_ERROR_BRAINDEAD)
 		elseif not spawnPoint then
