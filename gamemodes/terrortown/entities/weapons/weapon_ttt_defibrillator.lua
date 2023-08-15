@@ -96,7 +96,7 @@ if SERVER then
 		self.defiTimer = nil
 	end
 
-	function SWEP:Error(type)
+	function SWEP:Error(type, errorEnt)
 		self:SetState(DEFI_CHARGE)
 		self:StopSound("hum")
 		self:PlaySound("beep")
@@ -111,6 +111,10 @@ if SERVER then
 
 			self:Reset()
 		end)
+
+		-- In case people want to do something about this for themselves, presuambly they want to suppress the Message call.
+		local defibErrorResult = hook.Run("TTT2DefibError", type, self, self:GetOwner(), errorEnt)
+		if defibErrorResult ~= nil then return end
 
 		self:Message(type)
 	end
@@ -145,19 +149,19 @@ if SERVER then
 		local ply = CORPSE.GetPlayer(ragdoll)
 
 		if not IsValid(ply) then
-			self:Error(DEFI_ERROR_NO_VALID_PLY)
+			self:Error(DEFI_ERROR_NO_VALID_PLY, ragdoll)
 
 			return
 		end
 
 		if ply:IsReviving() then
-			self:Error(DEFI_ERROR_ALREADY_REVIVING)
+			self:Error(DEFI_ERROR_ALREADY_REVIVING, ragdoll)
 
 			return
 		end
 
 		if ply:IsActive() then
-			self:Error(DEFI_ERROR_PLAYER_ALIVE)
+			self:Error(DEFI_ERROR_PLAYER_ALIVE, ragdoll)
 
 			return
 		end
@@ -180,7 +184,7 @@ if SERVER then
 			function(p)
 				if p:IsActive() then
 					self:CancelRevival()
-					self:Error(DEFI_ERROR_PLAYER_ALIVE)
+					self:Error(DEFI_ERROR_PLAYER_ALIVE, p)
 					return false
 				else
 					return true
@@ -206,7 +210,7 @@ if SERVER then
 			end
 
 			self:CancelRevival()
-			self:Error(DEFI_ERROR_FAILED)
+			self:Error(DEFI_ERROR_FAILED, self.defiTarget)
 
 			return
 		end
@@ -259,10 +263,10 @@ if SERVER then
 			self:FinishRevival()
 		elseif not owner:KeyDown(IN_ATTACK) or owner:GetEyeTrace(MASK_SHOT_HULL).Entity ~= self.defiTarget then
 			self:CancelRevival()
-			self:Error(DEFI_ERROR_LOST_TARGET)
+			self:Error(DEFI_ERROR_LOST_TARGET, self.defiTarget)
 		elseif target:IsActive() then
 			self:CancelRevival()
-			self:Error(DEFI_ERROR_PLAYER_ALIVE)
+			self:Error(DEFI_ERROR_PLAYER_ALIVE, target)
 		end
 	end
 
@@ -284,20 +288,14 @@ if SERVER then
 
 		local defibAttemptResult = hook.Run("TTT2AttemptDefibPlayer", owner, ent, self)
 		if defibAttemptResult ~= nil then
-			self:Error()
+			self:Error(nil, ent)
 			return
 		end
 
 		local corpsePlayer = CORPSE.GetPlayer(ent)
 		if not IsValid(corpsePlayer) then
-			-- In case people want to do something about this for themselves.
-			local defibDisconnectResult = hook.Run("TTT2AttemptDefibDisconnectedPlayer", owner, ent, self)
-			if defibDisconnectResult ~= nil then
-				self:Error()
-				return
-			end
+			self:Error(DEFI_ERROR_PLAYER_DISCONNECTED, ent)
 
-			self:Error(DEFI_ERROR_PLAYER_DISCONNECTED)
 			return
 		end
 
@@ -309,9 +307,9 @@ if SERVER then
 
 		local spawnPoint = plyspawn.MakeSpawnPointSafe(corpsePlayer, ent:GetPos())
 		if CORPSE.WasHeadshot(ent) and not GetConVar("ttt_defibrillator_revive_braindead"):GetBool() then
-			self:Error(DEFI_ERROR_BRAINDEAD)
+			self:Error(DEFI_ERROR_BRAINDEAD, ent)
 		elseif not spawnPoint then
-			self:Error(DEFI_ERROR_NO_SPACE)
+			self:Error(DEFI_ERROR_NO_SPACE, ent)
 		else
 			self:BeginRevival(ent, trace.PhysicsBone)
 		end
