@@ -15,6 +15,7 @@ L["defi_error_no_valid_ply"] = "You can't revive this player since they are no l
 L["defi_error_already_reviving"] = "You can't revive this player since they are already reviving."
 L["defi_error_failed"] = "Revival attempt failed. Please try again."
 L["defi_error_player_alive"] = "You can't revive this player since they are already alive."
+L["defi_error_player_disconnected"] = "You can't revive this player since they have disconnected."
 
 L["label_defibrillator_play_sounds"] = "Enable defibrillator making sounds while reviving"
 L["label_defibrillator_revive_braindead"] = "Enable reviving of braindead players"

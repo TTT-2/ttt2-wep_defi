@@ -15,6 +15,7 @@ L["defi_error_no_valid_ply"] = "Vous ne pouvez pas réanimer ce joueur car son c
 L["defi_error_already_reviving"] = "Vous ne pouvez pas réanimer ce joueur parce qu'il est déjà réanimé."
 L["defi_error_failed"] = "La tentative de réanimation a échoué. Veuillez réessayer."
 -- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
+-- L["defi_error_player_disconnected"] = "You can't revive this player since they have disconnected."
 
 --L["label_defibrillator_play_sounds"] = "Enable defibrillator making sounds while reviving"
 --L["label_defibrillator_revive_braindead"] = "Enable reviving of braindead players"
