@@ -15,7 +15,7 @@ L["defi_error_no_valid_ply"] = "Du kannst diesen Spieler nicht wiederbeleben, da
 L["defi_error_already_reviving"] = "Du kannst diesen Spieler nicht wiederbeleben, da er bereits wiederbelebt wird."
 L["defi_error_failed"] = "Wiederbeleben fehlgeschlagen. Bitte versuche es erneut."
 L["defi_error_player_alive"] = "Du kannst diesen Spieler nicht wiederbeleben, da dieser noch am Leben ist."
--- L["defi_error_player_disconnected"] = "You can't revive this player since they have disconnected."
+L["defi_error_player_disconnected"] = "Du kannst diesen Spieler nicht wiederbeleben, da er das Spiel verlassen hat."
 
 L["label_defibrillator_play_sounds"] = "Aktiviere Geräusche bei Wiederbelebung"
 L["label_defibrillator_revive_braindead"] = "Aktiviere das Wiederbeleben von hirntoten Spielern"
