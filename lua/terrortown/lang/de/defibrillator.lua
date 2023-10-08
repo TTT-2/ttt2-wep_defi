@@ -21,10 +21,10 @@ L["label_defibrillator_play_sounds"] = "Aktiviere Geräusche bei Wiederbelebung"
 L["label_defibrillator_revive_braindead"] = "Aktiviere das Wiederbeleben von hirntoten Spielern"
 L["label_defibrillator_distance"] = "Maximale Entfernung für Wiederbelebung"
 L["label_defibrillator_success_chance"] = "Chance für erfolgreiche Wiederbelebung"
-L["label_defibrillator_revive_time"] = "Dauer der Widerbelebung"
+L["label_defibrillator_revive_time"] = "Dauer der Wiederbelebung"
 L["label_defibrillator_error_time"] = "Pause nach Fehlschlag"
 
-L["help_defibrillator_revive_braindead"] = "Ein hirntoter Spieler ist ein Spieler, der durch einen Kopfschuss getötet wurde. Wenn diese Einstellung deaktiviert ist, dann kann ein solcher Spieler nicht mit dem Defibrillator widerbelebt werden."
+L["help_defibrillator_revive_braindead"] = "Ein hirntoter Spieler ist ein Spieler, der durch einen Kopfschuss getötet wurde. Wenn diese Einstellung deaktiviert ist, dann kann ein solcher Spieler nicht mit dem Defibrillator wiederbelebt werden."
 L["help_defibrillator_time"] = [[
 Es gibt zwei Variablen für die Zeiteinstellungen des Defibrillators. Die erste stellt ein, wie lange es dauert eine Wiederbelebung durchzuführen. Die zweite steht für die Pausenzeit nach einem fehlgeschlagenen Versuch, bevor es erneut probiert werden kann.
 
