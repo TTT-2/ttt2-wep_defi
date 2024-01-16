@@ -4,6 +4,14 @@ if SERVER then
 	resource.AddFile("materials/gui/ttt/icon_defibrillator.vmt")
 end
 
+CreateConVar("ttt_defibrillator_distance", "100", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_defibrillator_revive_braindead", "0", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_defibrillator_play_sounds", "1", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_defibrillator_revive_time", "3.0", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_defibrillator_error_time", "1.5", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_defibrillator_success_chance", "75", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_defibrillator_reset_confirm", "0", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+
 local DEFI_IDLE = 0
 local DEFI_BUSY = 1
 local DEFI_CHARGE = 2
