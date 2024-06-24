@@ -213,10 +213,12 @@ if SERVER then
 		self:PlaySound("zap")
 
 		if math.random(0, 100) > GetConVar("ttt_defibrillator_success_chance"):GetInt() then
-			local phys = self.defiTarget:GetPhysicsObjectNum(self.defiBone)
+			if IsValid(self.defiTarget) and self.defiBone then
+				local phys = self.defiTarget:GetPhysicsObjectNum(self.defiBone)
 
-			if IsValid(phys) then
-				phys:ApplyForceCenter(Vector(0, 0, 4096))
+				if IsValid(phys) then
+					phys:ApplyForceCenter(Vector(0, 0, 4096))
+				end
 			end
 
 			self:CancelRevival()
