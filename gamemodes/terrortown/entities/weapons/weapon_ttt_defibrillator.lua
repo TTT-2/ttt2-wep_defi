@@ -82,9 +82,6 @@ SWEP.Charge = 0
 SWEP.Timer = -1
 
 if SERVER then
-    util.AddNetworkString("RequestRevivalStatus")
-    util.AddNetworkString("ReceiveRevivalStatus")
-
     function SWEP:OnDrop()
         self.BaseClass.OnDrop(self)
 
@@ -235,7 +232,6 @@ if SERVER then
         self:PlaySound("revived")
 
         self:Remove()
-        RunConsoleCommand("lastinv")
     end
 
     function SWEP:CancelRevival()
@@ -351,19 +347,6 @@ if SERVER then
             self:BeginRevival(ent, trace.PhysicsBone)
         end
     end
-
-    net.Receive("RequestRevivalStatus", function(_, requester)
-        local ply = net.ReadEntity()
-
-        if not IsValid(ply) then
-            return
-        end
-
-        net.Start("ReceiveRevivalStatus")
-        net.WriteEntity(ply)
-        net.WriteBool(ply:IsReviving())
-        net.Send(requester)
-    end)
 end
 
 -- do not play sound when swep is empty
@@ -440,28 +423,6 @@ if CLIENT then
 
     local colorGreen = Color(36, 160, 30)
 
-    local function IsPlayerReviving(ply)
-        if not ply.defi_lastRequest or ply.defi_lastRequest < CurTime() + 0.3 then
-            net.Start("RequestRevivalStatus")
-            net.WriteEntity(ply)
-            net.SendToServer()
-
-            ply.defi_lastRequest = CurTime()
-        end
-
-        return ply.defi_isReviving or false
-    end
-
-    net.Receive("ReceiveRevivalStatus", function()
-        local ply = net.ReadEntity()
-
-        if not IsValid(ply) then
-            return
-        end
-
-        ply.defi_isReviving = net.ReadBool()
-    end)
-
     hook.Add("TTTRenderEntityInfo", "ttt2_defibrillator_display_info", function(tData)
         local ent = tData:GetEntity()
         local client = LocalPlayer()
@@ -492,7 +453,7 @@ if CLIENT then
 
         local ply = CORPSE.GetPlayer(ent)
 
-        if activeWeapon:GetState() ~= DEFI_BUSY and IsValid(ply) and IsPlayerReviving(ply) then
+        if activeWeapon:GetState() ~= DEFI_BUSY and IsValid(ply) and ply:IsReviving() then
             tData:AddDescriptionLine(
                 LANG.TryTranslation("defi_player_already_reviving"),
                 COLOR_ORANGE
