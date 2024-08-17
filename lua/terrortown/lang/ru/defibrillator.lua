@@ -16,6 +16,7 @@ L["defi_error_already_reviving"] = "Вы не можете оживить это
 L["defi_error_failed"] = "Попытка возрождения не удалась. Пожалуйста, попробуйте ещё раз."
 -- L["defi_error_player_alive"] = "You cant revive this player since they are already alive."
 -- L["defi_error_player_disconnected"] = "You can't revive this player since they have disconnected."
+--L["defi_error_fake_body"] = "You can't revive a fake body."
 
 --L["label_defibrillator_play_sounds"] = "Enable defibrillator making sounds while reviving"
 --L["label_defibrillator_revive_braindead"] = "Enable reviving of braindead players"
@@ -29,3 +30,5 @@ L["defi_error_failed"] = "Попытка возрождения не удала�
 --There are two variables for timing the defibrillator. One sets the time it takes for the revival to happen. The other time is the timeout after a failed revival attempt until it can be tried again.
 
 --Both values are in seconds.]]
+
+--L["defibrillator_revive"] = "Hold to revive player"

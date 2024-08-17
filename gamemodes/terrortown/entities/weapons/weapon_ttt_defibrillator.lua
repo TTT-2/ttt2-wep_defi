@@ -1,18 +1,8 @@
 if SERVER then
     AddCSLuaFile()
-
-    resource.AddFile("materials/gui/ttt/icon_defibrillator.vmt")
-
-    local flags = { FCVAR_NOTIFY, FCVAR_ARCHIVE }
-
-    CreateConVar("ttt_defibrillator_distance", "100", flags)
-    CreateConVar("ttt_defibrillator_revive_braindead", "0", flags)
-    CreateConVar("ttt_defibrillator_play_sounds", "1", flags)
-    CreateConVar("ttt_defibrillator_revive_time", "3.0", flags)
-    CreateConVar("ttt_defibrillator_error_time", "1.5", flags)
-    CreateConVar("ttt_defibrillator_success_chance", "75", flags)
-    CreateConVar("ttt_defibrillator_reset_confirm", "0", flags)
 end
+
+local flags = { FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED }
 
 local DEFI_IDLE = 0
 local DEFI_BUSY = 1
@@ -27,6 +17,7 @@ local DEFI_ERROR_ALREADY_REVIVING = 5
 local DEFI_ERROR_FAILED = 6
 local DEFI_ERROR_PLAYER_ALIVE = 7
 local DEFI_ERROR_PLAYER_DISCONNECTED = 8
+local DEFI_ERROR_FAKE_BODY = 9
 
 local sounds = {
     empty = Sound("Weapon_SMG1.Empty"),
@@ -35,6 +26,8 @@ local sounds = {
     zap = Sound("ambient/energy/zap7.wav"),
     revived = Sound("items/smallmedkit1.wav"),
 }
+
+DEFINE_BASECLASS("weapon_tttbase")
 
 SWEP.Base = "weapon_tttbase"
 
@@ -54,6 +47,7 @@ end
 
 SWEP.Kind = WEAPON_EQUIP2
 SWEP.CanBuy = { ROLE_TRAITOR, ROLE_DETECTIVE }
+SWEP.notBuyable = false
 
 SWEP.UseHands = true
 SWEP.ViewModel = "models/weapons/v_c4.mdl"
@@ -81,11 +75,27 @@ SWEP.Secondary.Delay = 0.5
 SWEP.Charge = 0
 SWEP.Timer = -1
 
+SWEP.isDefibrillator = true
+
+SWEP.EnableConfigurableClip = true
+SWEP.ConfigurableClip = 1
+
+SWEP.cvars = {
+    reviveBraindead = CreateConVar("ttt_necro_defibrillator_revive_braindead", "0", flags),
+    playSound = CreateConVar("ttt_necro_defibrillator_play_sounds", "1", flags),
+    reviveTime = CreateConVar("ttt_necro_defibrillator_revive_time", "3.0", flags),
+    errorTime = CreateConVar("ttt_necro_defibrillator_error_time", "1.5", flags),
+    successChance = CreateConVar("ttt_necro_defibrillator_success_chance", "75", flags),
+    resetConfirmation = CreateConVar("ttt_necro_defibrillator_reset_confirm", "0", flags),
+}
+
+SWEP.revivalReason = "revived_by_player"
+
 if SERVER then
     function SWEP:OnDrop()
-        self.BaseClass.OnDrop(self)
+        BaseClass.OnDrop(self)
 
-        self:CancelRevival()
+        self:CancelRevival(CORPSE.GetPlayer(self.defiTarget))
     end
 
     function SWEP:SetState(state)
@@ -114,18 +124,13 @@ if SERVER then
             return
         end
 
-        timer.Create(
-            self.defiTimer,
-            GetConVar("ttt_defibrillator_error_time"):GetFloat(),
-            1,
-            function()
-                if not IsValid(self) then
-                    return
-                end
-
-                self:Reset()
+        timer.Create(self.defiTimer, self.cvars.errorTime:GetFloat(), 1, function()
+            if not IsValid(self) then
+                return
             end
-        )
+
+            self:Reset()
+        end)
 
         -- In case people want to do something about this for themselves, presuambly they want to suppress the Message call.
         local defibErrorResult = hook.Run("TTT2DefibError", type, self, self:GetOwner(), errorEnt)
@@ -157,6 +162,8 @@ if SERVER then
             LANG.Msg(owner, "defi_error_player_alive", nil, MSG_MSTACK_WARN)
         elseif type == DEFI_ERROR_PLAYER_DISCONNECTED then
             LANG.Msg(owner, "defi_error_player_disconnected", nil, MSG_MSTACK_WARN)
+        elseif type == DEFI_ERROR_FAKE_BODY then
+            LANG.Msg(owner, "defi_error_fake_body", nil, MSG_MSTACK_WARN)
         elseif isstring(type) then
             LANG.Msg(owner, type, nil, MSG_MSTACK_WARN)
         end
@@ -164,6 +171,7 @@ if SERVER then
 
     function SWEP:BeginRevival(ragdoll, bone)
         local ply = CORPSE.GetPlayer(ragdoll)
+        local owner = self:GetOwner()
 
         if not IsValid(ply) then
             self:Error(DEFI_ERROR_NO_VALID_PLY, ragdoll)
@@ -177,13 +185,13 @@ if SERVER then
             return
         end
 
-        if ply:IsActive() then
+        if ply:IsTerror() then
             self:Error(DEFI_ERROR_PLAYER_ALIVE, ragdoll)
 
             return
         end
 
-        local reviveTime = GetConVar("ttt_defibrillator_revive_time"):GetFloat()
+        local reviveTime = self.cvars.reviveTime:GetFloat()
 
         self:SetState(DEFI_BUSY)
         self:SetStartTime(CurTime())
@@ -191,29 +199,32 @@ if SERVER then
         self:PlaySound("hum")
 
         -- start revival
-        ply:Revive(reviveTime, function()
-            if GetConVar("ttt_defibrillator_reset_confirm"):GetBool() then
+        ply:Revive(reviveTime, function(p)
+            if self.cvars.resetConfirmation:GetBool() then
                 ply:ResetConfirmPlayer()
             end
+
+            self:FinishRevival(p, owner)
         end, function(p)
-            if p:IsActive() then
-                self:CancelRevival()
+            if p:IsTerror() then
+                self:CancelRevival(p)
                 self:Error(DEFI_ERROR_PLAYER_ALIVE, p)
+
                 return false
             else
                 return true
             end
         end, true, REVIVAL_BLOCK_NONE)
-        ply:SendRevivalReason("revived_by_player", { name = self:GetOwner():Nick() })
+        ply:SendRevivalReason(self.revivalReason, { name = self:GetOwner():Nick() })
 
         self.defiTarget = ragdoll
         self.defiBone = bone
     end
 
-    function SWEP:FinishRevival()
+    function SWEP:FinishRevival(ply, owner)
         self:PlaySound("zap")
 
-        if math.random(0, 100) > GetConVar("ttt_defibrillator_success_chance"):GetInt() then
+        if math.random(0, 100) > self.cvars.successChance:GetInt() then
             if IsValid(self.defiTarget) and self.defiBone then
                 local phys = self.defiTarget:GetPhysicsObjectNum(self.defiBone)
 
@@ -222,7 +233,7 @@ if SERVER then
                 end
             end
 
-            self:CancelRevival()
+            self:CancelRevival(ply)
             self:Error(DEFI_ERROR_FAILED, self.defiTarget)
 
             return
@@ -231,12 +242,16 @@ if SERVER then
         self:Reset()
         self:PlaySound("revived")
 
-        self:Remove()
+        self:OnRevive(ply, owner)
+
+        self:TakePrimaryAmmo(1)
+
+        if not self:CanPrimaryAttack() then
+            self:Remove()
+        end
     end
 
-    function SWEP:CancelRevival()
-        local ply = CORPSE.GetPlayer(self.defiTarget)
-
+    function SWEP:CancelRevival(ply)
         self:Reset()
 
         if not IsValid(ply) then
@@ -247,16 +262,14 @@ if SERVER then
         ply:SendRevivalReason(nil)
     end
 
-    function SWEP:StopSound(soundName)
-        if not GetConVar("ttt_defibrillator_play_sounds"):GetBool() then
-            return
-        end
+    function SWEP:OnRevive(ply) end
 
+    function SWEP:StopSound(soundName)
         self:GetOwner():StopSound(sounds[soundName])
     end
 
     function SWEP:PlaySound(soundName)
-        if not GetConVar("ttt_defibrillator_play_sounds"):GetBool() then
+        if not self.cvars.playSound:GetBool() then
             return
         end
 
@@ -280,20 +293,13 @@ if SERVER then
         local target = CORPSE.GetPlayer(self.defiTarget)
 
         if
-            CurTime()
-            >= self:GetStartTime()
-                + GetConVar("ttt_defibrillator_revive_time"):GetFloat()
-                - 0.01
-        then
-            self:FinishRevival()
-        elseif
             not owner:KeyDown(IN_ATTACK)
             or owner:GetEyeTrace(MASK_SHOT_HULL).Entity ~= self.defiTarget
         then
-            self:CancelRevival()
+            self:CancelRevival(target)
             self:Error(DEFI_ERROR_LOST_TARGET, self.defiTarget)
-        elseif target:IsActive() then
-            self:CancelRevival()
+        elseif target:IsTerror() then
+            self:CancelRevival(target)
             self:Error(DEFI_ERROR_PLAYER_ALIVE, target)
         end
     end
@@ -306,7 +312,7 @@ if SERVER then
         local ent = trace.Entity
 
         if
-            distance > GetConVar("ttt_defibrillator_distance"):GetInt()
+            distance > 100
             or not IsValid(ent)
             or ent:GetClass() ~= "prop_ragdoll"
             or not CORPSE.IsValidBody(ent)
@@ -316,13 +322,14 @@ if SERVER then
             return
         end
 
-        local defibAttemptResult = hook.Run("TTT2AttemptDefibPlayer", owner, ent, self)
-        if defibAttemptResult ~= nil then
+        if hook.Run("TTT2AttemptDefibPlayer", owner, ent, self) ~= nil then
             self:Error(nil, ent)
+
             return
         end
 
         local corpsePlayer = CORPSE.GetPlayer(ent)
+
         if not IsValid(corpsePlayer) then
             self:Error(DEFI_ERROR_PLAYER_DISCONNECTED, ent)
 
@@ -336,13 +343,13 @@ if SERVER then
         end
 
         local spawnPoint = plyspawn.MakeSpawnPointSafe(corpsePlayer, ent:GetPos())
-        if
-            CORPSE.WasHeadshot(ent)
-            and not GetConVar("ttt_defibrillator_revive_braindead"):GetBool()
-        then
+
+        if CORPSE.WasHeadshot(ent) and not self.cvars.reviveBraindead:GetBool() then
             self:Error(DEFI_ERROR_BRAINDEAD, ent)
         elseif not spawnPoint then
             self:Error(DEFI_ERROR_NO_SPACE, ent)
+        elseif not CORPSE.IsRealPlayerCorpse(ent) then
+            self:Error(DEFI_ERROR_FAKE_BODY, ent)
         else
             self:BeginRevival(ent, trace.PhysicsBone)
         end
@@ -367,12 +374,25 @@ function SWEP:GetReviveTime()
 end
 
 if CLIENT then
+    function SWEP:Initialize()
+        self:AddTTT2HUDHelp("defibrillator_revive")
+
+        BaseClass.Initialize(self)
+    end
+
+    function SWEP:PrimaryAttack() end
+
     function SWEP:AddToSettingsMenu(parent)
         local form = vgui.CreateTTT2Form(parent, "header_equipment_additional")
 
         form:MakeCheckBox({
             label = "label_defibrillator_play_sounds",
-            serverConvar = "ttt_defibrillator_play_sounds",
+            serverConvar = self.cvars.playSound:GetName(),
+        })
+
+        form:MakeCheckBox({
+            label = "label_defibrillator_reset_confirm",
+            serverConvar = self.cvars.resetConfirmation:GetName(),
         })
 
         form:MakeHelp({
@@ -381,20 +401,12 @@ if CLIENT then
 
         form:MakeCheckBox({
             label = "label_defibrillator_revive_braindead",
-            serverConvar = "ttt_defibrillator_revive_braindead",
-        })
-
-        form:MakeSlider({
-            label = "label_defibrillator_distance",
-            serverConvar = "ttt_defibrillator_distance",
-            min = 0,
-            max = 250,
-            decimal = 0,
+            serverConvar = self.cvars.reviveBraindead:GetName(),
         })
 
         form:MakeSlider({
             label = "label_defibrillator_success_chance",
-            serverConvar = "ttt_defibrillator_success_chance",
+            serverConvar = self.cvars.successChance:GetName(),
             min = 0,
             max = 100,
             decimal = 0,
@@ -406,7 +418,7 @@ if CLIENT then
 
         form:MakeSlider({
             label = "label_defibrillator_revive_time",
-            serverConvar = "ttt_defibrillator_revive_time",
+            serverConvar = self.cvars.reviveTime:GetName(),
             min = 0,
             max = 15,
             decimal = 1,
@@ -414,7 +426,7 @@ if CLIENT then
 
         form:MakeSlider({
             label = "label_defibrillator_error_time",
-            serverConvar = "ttt_defibrillator_error_time",
+            serverConvar = self.cvars.errorTime:GetName(),
             min = 0,
             max = 15,
             decimal = 1,
@@ -434,12 +446,12 @@ if CLIENT then
         end
 
         -- player has to hold a defibrillator
-        if not IsValid(activeWeapon) or activeWeapon:GetClass() ~= "weapon_ttt_defibrillator" then
+        if not IsValid(activeWeapon) or not activeWeapon.isDefibrillator then
             return
         end
 
         -- ent has to be in usable range
-        if tData:GetEntityDistance() > GetGlobalFloat("ttt_defibrillator_distance", 100.0) then
+        if tData:GetEntityDistance() > 100 then
             return
         end
 

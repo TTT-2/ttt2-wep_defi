@@ -16,6 +16,7 @@ L["defi_error_already_reviving"] = "Du kannst diesen Spieler nicht wiederbeleben
 L["defi_error_failed"] = "Wiederbeleben fehlgeschlagen. Bitte versuche es erneut."
 L["defi_error_player_alive"] = "Du kannst diesen Spieler nicht wiederbeleben, da dieser noch am Leben ist."
 L["defi_error_player_disconnected"] = "Du kannst diesen Spieler nicht wiederbeleben, da er das Spiel verlassen hat."
+--L["defi_error_fake_body"] = "You can't revive a fake body."
 
 L["label_defibrillator_play_sounds"] = "Aktiviere Geräusche bei Wiederbelebung"
 L["label_defibrillator_revive_braindead"] = "Aktiviere das Wiederbeleben von hirntoten Spielern"
@@ -29,3 +30,5 @@ L["help_defibrillator_time"] = [[
 Es gibt zwei Variablen für die Zeiteinstellungen des Defibrillators. Die erste stellt ein, wie lange es dauert eine Wiederbelebung durchzuführen. Die zweite steht für die Pausenzeit nach einem fehlgeschlagenen Versuch, bevor es erneut probiert werden kann.
 
 Beide Werte sind in Sekunden.]]
+
+--L["defibrillator_revive"] = "Hold to revive player"
