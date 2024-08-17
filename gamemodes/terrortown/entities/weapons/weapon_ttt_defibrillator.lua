@@ -230,7 +230,6 @@ if SERVER then
         self:PlaySound("revived")
 
         self:Remove()
-        RunConsoleCommand("lastinv")
     end
 
     function SWEP:CancelRevival()
