@@ -81,12 +81,12 @@ SWEP.EnableConfigurableClip = true
 SWEP.ConfigurableClip = 1
 
 SWEP.cvars = {
-    reviveBraindead = CreateConVar("ttt_necro_defibrillator_revive_braindead", "0", flags),
-    playSound = CreateConVar("ttt_necro_defibrillator_play_sounds", "1", flags),
-    reviveTime = CreateConVar("ttt_necro_defibrillator_revive_time", "3.0", flags),
-    errorTime = CreateConVar("ttt_necro_defibrillator_error_time", "1.5", flags),
-    successChance = CreateConVar("ttt_necro_defibrillator_success_chance", "75", flags),
-    resetConfirmation = CreateConVar("ttt_necro_defibrillator_reset_confirm", "0", flags),
+    reviveBraindead = CreateConVar("ttt_defibrillator_revive_braindead", "0", flags),
+    playSound = CreateConVar("ttt_defibrillator_play_sounds", "1", flags),
+    reviveTime = CreateConVar("ttt_defibrillator_revive_time", "3.0", flags),
+    errorTime = CreateConVar("ttt_defibrillator_error_time", "1.5", flags),
+    successChance = CreateConVar("ttt_defibrillator_success_chance", "75", flags),
+    resetConfirmation = CreateConVar("ttt_defibrillator_reset_confirm", "0", flags),
 }
 
 SWEP.revivalReason = "revived_by_player"
