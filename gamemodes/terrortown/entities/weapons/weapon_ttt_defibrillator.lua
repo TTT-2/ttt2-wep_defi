@@ -197,14 +197,19 @@ if SERVER then
         self:SetStartTime(CurTime())
         self:SetReviveTime(reviveTime)
         self:PlaySound("hum")
+        self.defiTarget = ragdoll
+        self.defiBone = bone
+
+        timer.Simple(reviveTime, function()
+            if not IsValid(self) or not IsValid(ply) or not IsValid(owner) then return end
+            self:FinishRevival(ply, owner)
+        end)
 
         -- start revival
         ply:Revive(reviveTime, function(p)
             if self.cvars.resetConfirmation:GetBool() then
-                ply:ResetConfirmPlayer()
+                p:ResetConfirmPlayer()
             end
-
-            self:FinishRevival(p, owner)
         end, function(p)
             if p:IsTerror() then
                 self:CancelRevival(p)
@@ -216,9 +221,6 @@ if SERVER then
             end
         end, true, REVIVAL_BLOCK_NONE)
         ply:SendRevivalReason(self.revivalReason, { name = self:GetOwner():Nick() })
-
-        self.defiTarget = ragdoll
-        self.defiBone = bone
     end
 
     function SWEP:FinishRevival(ply, owner)
