@@ -24,6 +24,7 @@ L["defi_error_failed"] = "La tentative de réanimation a échoué. Veuillez rée
 --L["label_defibrillator_success_chance"] = "Chance the revival is a success"
 --L["label_defibrillator_revive_time"] = "Time it takes for revival"
 --L["label_defibrillator_error_time"] = "Timeout after failed revival"
+--L["label_defibrillator_reset_confirm"] = "Reset confirmation after revival"
 
 --L["help_defibrillator_revive_braindead"] = "A baindead player is a player that got killed by a headshot. If this setting is disabled, they can not be revived with this defibrillator."
 --L["help_defibrillator_time"] = [[
