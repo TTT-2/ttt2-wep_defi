@@ -259,7 +259,11 @@ if SERVER then
         ply:SendRevivalReason(nil)
     end
 
-    function SWEP:OnRevive(ply) end
+    function SWEP:OnRevive(ply, owner) end
+
+    function SWEP:OnReviveStart(ply, owner)
+        return true
+    end
 
     function SWEP:StopSound(soundName)
         self:GetOwner():StopSound(sounds[soundName])
@@ -343,6 +347,10 @@ if SERVER then
         if self:GetState() ~= DEFI_IDLE then
             self:Error(DEFI_ERROR_TOO_FAST)
 
+            return
+        end
+
+        if self:OnReviveStart(corpsePlayer, owner) == false then
             return
         end
 
