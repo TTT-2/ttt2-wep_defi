@@ -192,6 +192,8 @@ if SERVER then
         end
 
         local reviveTime = self.cvars.reviveTime:GetFloat()
+        local doResetConfirmation = self.cvars.resetConfirmation:GetBool()
+        local reviveHealth = self.cvars.revivalHealth:GetInt()
 
         self:SetState(DEFI_BUSY)
         self:SetStartTime(CurTime())
@@ -200,12 +202,12 @@ if SERVER then
 
         -- start revival
         ply:Revive(reviveTime, function(p)
-            if self.cvars.resetConfirmation:GetBool() then
+            if doResetConfirmation then
                 ply:ResetConfirmPlayer()
             end
 
-            p:SetMaxHealth(self.cvars.revivalHealth:GetInt())
-            p:SetHealth(self.cvars.revivalHealth:GetInt())
+            p:SetMaxHealth(reviveHealth)
+            p:SetHealth(reviveHealth)
         end, function(p)
             if p:IsTerror() then
                 self:CancelRevival(p)
