@@ -171,7 +171,6 @@ if SERVER then
 
     function SWEP:BeginRevival(ragdoll, bone)
         local ply = CORPSE.GetPlayer(ragdoll)
-        local owner = self:GetOwner()
 
         if not IsValid(ply) then
             self:Error(DEFI_ERROR_NO_VALID_PLY, ragdoll)
@@ -203,8 +202,6 @@ if SERVER then
             if self.cvars.resetConfirmation:GetBool() then
                 ply:ResetConfirmPlayer()
             end
-
-            self:FinishRevival(p, owner)
         end, function(p)
             if p:IsTerror() then
                 self:CancelRevival(p)
@@ -293,6 +290,13 @@ if SERVER then
         local target = CORPSE.GetPlayer(self.defiTarget)
 
         if
+            CurTime()
+            >= self:GetStartTime()
+                + GetConVar("ttt_defibrillator_revive_time"):GetFloat()
+                - 0.01
+        then
+            self:FinishRevival(target, owner)
+        elseif
             not owner:KeyDown(IN_ATTACK)
             or owner:GetEyeTrace(MASK_SHOT_HULL).Entity ~= self.defiTarget
         then
