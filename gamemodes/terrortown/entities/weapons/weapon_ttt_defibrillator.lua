@@ -87,6 +87,7 @@ SWEP.cvars = {
     errorTime = CreateConVar("ttt_defibrillator_error_time", "1.5", flags),
     successChance = CreateConVar("ttt_defibrillator_success_chance", "75", flags),
     resetConfirmation = CreateConVar("ttt_defibrillator_reset_confirm", "0", flags),
+    revivalHealth = CreateConVar("ttt_defibrillator_revival_health", "100", flags),
 }
 
 SWEP.revivalReason = "revived_by_player"
@@ -202,6 +203,9 @@ if SERVER then
             if self.cvars.resetConfirmation:GetBool() then
                 ply:ResetConfirmPlayer()
             end
+
+            p:SetMaxHealth(self.cvars.revivalHealth:GetInt())
+            p:SetHealth(self.cvars.revivalHealth:GetInt())
         end, function(p)
             if p:IsTerror() then
                 self:CancelRevival(p)
@@ -212,6 +216,7 @@ if SERVER then
                 return true
             end
         end, true, REVIVAL_BLOCK_NONE)
+
         ply:SendRevivalReason(self.revivalReason, { name = self:GetOwner():Nick() })
 
         self.defiTarget = ragdoll
@@ -405,6 +410,14 @@ if CLIENT then
         form:MakeCheckBox({
             label = "label_defibrillator_reset_confirm",
             serverConvar = self.cvars.resetConfirmation:GetName(),
+        })
+
+        form:MakeSlider({
+            label = "label_defibrillator_revival_health",
+            serverConvar = self.cvars.revivalHealth:GetName(),
+            min = 0,
+            max = 150,
+            decimal = 0,
         })
 
         form:MakeHelp({

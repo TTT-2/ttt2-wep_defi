@@ -25,6 +25,7 @@ L["label_defibrillator_success_chance"] = "Chance für erfolgreiche Wiederbelebu
 L["label_defibrillator_revive_time"] = "Dauer der Wiederbelebung"
 L["label_defibrillator_error_time"] = "Pause nach Fehlschlag"
 --L["label_defibrillator_reset_confirm"] = "Reset confirmation after revival"
+--L["label_defibrillator_revival_health"] = "Health after Revival"
 
 L["help_defibrillator_revive_braindead"] = "Ein hirntoter Spieler ist ein Spieler, der durch einen Kopfschuss getötet wurde. Wenn diese Einstellung deaktiviert ist, dann kann ein solcher Spieler nicht mit dem Defibrillator wiederbelebt werden."
 L["help_defibrillator_time"] = [[

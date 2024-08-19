@@ -25,6 +25,7 @@ L["defi_error_failed"] = "Попытка возрождения не удала�
 --L["label_defibrillator_revive_time"] = "Time it takes for revival"
 --L["label_defibrillator_error_time"] = "Timeout after failed revival"
 --L["label_defibrillator_reset_confirm"] = "Reset confirmation after revival"
+--L["label_defibrillator_revival_health"] = "Health after Revival"
 
 --L["help_defibrillator_revive_braindead"] = "A baindead player is a player that got killed by a headshot. If this setting is disabled, they can not be revived with this defibrillator."
 --L["help_defibrillator_time"] = [[
