@@ -300,12 +300,7 @@ if SERVER then
         local owner = self:GetOwner()
         local target = CORPSE.GetPlayer(self.defiTarget)
 
-        if
-            CurTime()
-            >= self:GetStartTime()
-                + GetConVar("ttt_defibrillator_revive_time"):GetFloat()
-                - 0.01
-        then
+        if CurTime() >= self:GetStartTime() + self.cvars.reviveTime:GetFloat() - 0.01 then
             self:FinishRevival(target, owner)
         elseif
             not owner:KeyDown(IN_ATTACK)
