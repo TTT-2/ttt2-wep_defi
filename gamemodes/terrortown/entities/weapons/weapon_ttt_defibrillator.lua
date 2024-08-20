@@ -88,6 +88,7 @@ SWEP.cvars = {
     successChance = CreateConVar("ttt_defibrillator_success_chance", "75", flags),
     resetConfirmation = CreateConVar("ttt_defibrillator_reset_confirm", "0", flags),
     revivalHealth = CreateConVar("ttt_defibrillator_revival_health", "100", flags),
+    revivalMaxHealth = CreateConVar("ttt_defibrillator_revival_max_health", "100", flags),
 }
 
 SWEP.revivalReason = "revived_by_player"
@@ -204,6 +205,8 @@ if SERVER then
         ply:Revive(reviveTime, function(p)
             if doResetConfirmation then
                 ply:ResetConfirmPlayer()
+
+                ply:TTT2NETSetBool("body_found", true)
             end
 
             p:SetMaxHealth(reviveHealth)
@@ -412,7 +415,15 @@ if CLIENT then
         form:MakeSlider({
             label = "label_defibrillator_revival_health",
             serverConvar = self.cvars.revivalHealth:GetName(),
-            min = 0,
+            min = 1,
+            max = 150,
+            decimal = 0,
+        })
+
+        form:MakeSlider({
+            label = "label_defibrillator_revival_max_health",
+            serverConvar = self.cvars.revivalMaxHealth:GetName(),
+            min = 1,
             max = 150,
             decimal = 0,
         })
