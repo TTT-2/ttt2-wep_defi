@@ -212,13 +212,11 @@ if SERVER then
             p:SetMaxHealth(reviveHealth)
             p:SetHealth(reviveHealth)
         end, function(p)
-            if not IsValid(self) then
-                return false
-            end
-
             if p:IsTerror() then
-                self:CancelRevival(p)
-                self:Error(DEFI_ERROR_PLAYER_ALIVE, p)
+                if IsValid(self) then
+                    self:CancelRevival(p)
+                    self:Error(DEFI_ERROR_PLAYER_ALIVE, p)
+                end
 
                 return false
             else
