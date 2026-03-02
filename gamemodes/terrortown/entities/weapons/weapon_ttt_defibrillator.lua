@@ -72,9 +72,6 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = false
 SWEP.Secondary.Delay = 0.5
 
-SWEP.Charge = 0
-SWEP.Timer = -1
-
 SWEP.isDefibrillator = true
 
 SWEP.EnableConfigurableClip = true
@@ -97,7 +94,7 @@ if SERVER then
     function SWEP:OnDrop()
         BaseClass.OnDrop(self)
 
-        self:CancelRevival(CORPSE.GetPlayer(self.defiTarget))
+        self:CancelRevival(self.defiPly)
     end
 
     function SWEP:SetState(state)
@@ -108,9 +105,9 @@ if SERVER then
         self:SetState(DEFI_IDLE)
 
         self.defiTarget = nil
+        self.defiPly = nil
+        self.defiOwner = nil
         self.defiBone = nil
-        self.defiStart = 0
-
         self.defiTimer = nil
     end
 
@@ -134,8 +131,14 @@ if SERVER then
             self:Reset()
         end)
 
+        local owner = self:GetOwner()
+
+        if not IsValid(owner) then
+            return
+        end
+
         -- In case people want to do something about this for themselves, presuambly they want to suppress the Message call.
-        local defibErrorResult = hook.Run("TTT2DefibError", type, self, self:GetOwner(), errorEnt)
+        local defibErrorResult = hook.Run("TTT2DefibError", type, self, owner, errorEnt)
         if defibErrorResult ~= nil then
             return
         end
@@ -145,6 +148,10 @@ if SERVER then
 
     function SWEP:Message(type)
         local owner = self:GetOwner()
+
+        if not IsValid(owner) then
+            return
+        end
 
         if type == DEFI_ERROR_BRAINDEAD then
             LANG.Msg(owner, "defi_error_braindead", nil, MSG_MSTACK_WARN)
@@ -172,7 +179,12 @@ if SERVER then
     end
 
     function SWEP:BeginRevival(ragdoll, bone)
+        local owner = self:GetOwner()
         local ply = CORPSE.GetPlayer(ragdoll)
+
+        if not IsValid(owner) then
+            return
+        end
 
         if not IsValid(ply) then
             self:Error(DEFI_ERROR_NO_VALID_PLY, ragdoll)
@@ -224,13 +236,34 @@ if SERVER then
             end
         end, true, REVIVAL_BLOCK_NONE)
 
-        ply:SendRevivalReason(self.revivalReason, { name = self:GetOwner():Nick() })
+        ply:SendRevivalReason(self.revivalReason, { name = owner:Nick() })
 
         self.defiTarget = ragdoll
+        self.defiPly = ply
+        self.defiOwner = owner
         self.defiBone = bone
     end
 
     function SWEP:FinishRevival(ply, owner)
+        local defiOwner = IsValid(owner) and owner or self.defiOwner
+        local defiPly = IsValid(ply) and ply or self.defiPly
+
+        if not IsValid(defiOwner) then
+            if IsValid(defiPly) then
+                self:CancelRevival(defiPly)
+            end
+
+            self:Reset()
+
+            return
+        end
+
+        if not IsValid(defiPly) then
+            self:Reset()
+
+            return
+        end
+
         self:PlaySound("zap")
 
         if math.random(0, 100) > self.cvars.successChance:GetInt() then
@@ -242,7 +275,7 @@ if SERVER then
                 end
             end
 
-            self:CancelRevival(ply)
+            self:CancelRevival(defiPly)
             self:Error(DEFI_ERROR_FAILED, self.defiTarget)
 
             return
@@ -251,7 +284,7 @@ if SERVER then
         self:Reset()
         self:PlaySound("revived")
 
-        self:OnRevive(ply, owner)
+        self:OnRevive(defiPly, defiOwner)
 
         self:TakePrimaryAmmo(1)
 
@@ -278,7 +311,13 @@ if SERVER then
     end
 
     function SWEP:StopSound(soundName)
-        self:GetOwner():StopSound(sounds[soundName])
+        local owner = self:GetOwner()
+
+        if not IsValid(owner) then
+            return
+        end
+
+        owner:StopSound(sounds[soundName])
     end
 
     function SWEP:PlaySound(soundName)
@@ -286,7 +325,13 @@ if SERVER then
             return
         end
 
-        self:GetOwner():EmitSound(sounds[soundName])
+        local owner = self:GetOwner()
+
+        if not IsValid(owner) then
+            return
+        end
+
+        owner:EmitSound(sounds[soundName])
     end
 
     function SWEP:SetStartTime(time)
@@ -302,25 +347,38 @@ if SERVER then
             return
         end
 
-        local owner = self:GetOwner()
-        local target = CORPSE.GetPlayer(self.defiTarget)
+        local owner = IsValid(self.defiOwner) and self.defiOwner
+            or IsValid(self:GetOwner()) and self:GetOwner()
+        local ragdoll = IsValid(self.defiTarget) and self.defiTarget
+        local target = IsValid(self.defiPly) and self.defiPly
+            or IsValid(ragdoll) and CORPSE.GetPlayer(ragdoll)
+
+        if IsValid(target) and target:IsTerror() then
+            self:FinishRevival(target, owner)
+
+            return
+        end
 
         if CurTime() >= self:GetStartTime() + self.cvars.reviveTime:GetFloat() - 0.01 then
             self:FinishRevival(target, owner)
         elseif
-            not owner:KeyDown(IN_ATTACK)
-            or owner:GetEyeTrace(MASK_SHOT_HULL).Entity ~= self.defiTarget
+            IsValid(owner)
+            and IsValid(target)
+            and IsValid(ragdoll)
+            and (not owner:KeyDown(IN_ATTACK)
+            or owner:GetEyeTrace(MASK_SHOT_HULL).Entity ~= ragdoll)
         then
             self:CancelRevival(target)
-            self:Error(DEFI_ERROR_LOST_TARGET, self.defiTarget)
-        elseif target:IsTerror() then
-            self:CancelRevival(target)
-            self:Error(DEFI_ERROR_PLAYER_ALIVE, target)
+            self:Error(DEFI_ERROR_LOST_TARGET, ragdoll)
         end
     end
 
     function SWEP:PrimaryAttack()
         local owner = self:GetOwner()
+
+        if not IsValid(owner) then
+            return
+        end
 
         local trace = owner:GetEyeTrace(MASK_SHOT_HULL)
         local distance = trace.StartPos:Distance(trace.HitPos)
